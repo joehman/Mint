@@ -12,6 +12,9 @@
 
 #define mtVersion "0.4"
 
+bool gPrintASTTree = false;
+
+
 const struct TokenTypeRules rules = {
     .additionChar           = '+',
     .divisionChar           = '/',
@@ -43,9 +46,11 @@ void mtExecute(char* string)
     size_t tokenCount = 0; 
     struct Token* tokens = mtTokenize(string, rules, &tokenCount);
 
-    // run the parser, which creates an abstract syntax tree.
     struct ASTNode* rootNode = mtASTParseTokens(tokens, tokenCount);
-
+    
+    if (gPrintASTTree)
+        mtPrintASTTree(rootNode);
+    
     if (rootNode != NULL)
     {
         mtInterpret(rootNode);
@@ -56,17 +61,22 @@ void mtExecute(char* string)
 
 int main(int argc, char* argv[])
 {
-
     printf("Mint version " mtVersion "\n");
 
-    if (argc != 2)
+    if (argc < 2)
     {
-        printf("Usage:\n\t Mint [file]\n");
+        printf("Usage:\n\t Mint [--args..] [file]\n");
         return -1;
     }
 
+    for (int i = 0; i < argc; i++) 
+    {
+        if (strcmp(argv[i], "--printAST") == 0) 
+            gPrintASTTree = true;
+    }
+
     int result;
-    char* path = argv[1];
+    char* path = argv[argc-1];
 
     // load the file
     size_t fileSize; 
@@ -85,5 +95,6 @@ int main(int argc, char* argv[])
     }
     
     mtExecute(fileString);
+
     free(fileString);
 }
