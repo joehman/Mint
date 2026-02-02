@@ -32,7 +32,6 @@ int mtASTAddChildNode(struct ASTNode* parent, struct ASTNode* child)
 }   
 struct ASTNode* mtASTCreateNode()
 {
-
     struct ASTNode* out = malloc( sizeof(struct ASTNode) );
     out->type = NodeType_None;
     out->childCount = 0;
@@ -45,7 +44,6 @@ struct ASTNode* mtASTCreateNode()
 }
 struct ASTNode* mtASTTokenCreateNode(struct Token token)
 {
-
     struct ASTNode* out = malloc( sizeof(struct ASTNode) );
     
     out->childCount = 0;
@@ -69,4 +67,77 @@ void mtASTFree(struct ASTNode* node)
     }
     free(node->children);
     free(node);
+}
+
+void printASTTreeRecurse(struct ASTNode* node, int depth)
+{
+    for (size_t i = 0; i < depth; i++) {
+        printf("|\t"); 
+    } 
+    mtPrintASTNode(node);
+    printf("\n");
+
+    for (size_t i = 0; i < node->childCount; i++) 
+    {
+        if (!node->children[i])
+        {
+            // print null with the proper depth
+            for (size_t i = 0; i < depth; i++) {
+                printf("|\t"); 
+            } 
+            printf("(null)\n");
+            continue;
+        }
+        printASTTreeRecurse(node->children[i], depth+1);  
+    }
+
+}
+
+void mtPrintASTTree(struct ASTNode* node)
+{
+    int depth = 0;
+    printASTTreeRecurse(node, depth);    
+}
+
+void mtPrintASTNode(struct ASTNode* node)
+{
+    char buf[128];
+    memset(&buf, 0, 128);
+
+    strncpy((char*)&buf, node->token.string, node->token.size);
+
+    printf("tok: %s type: ", buf);
+    mtPrintASTNodeType(node);
+}
+
+void mtPrintASTNodeType(struct ASTNode* node)
+{
+    int type = node->type;
+    
+    #define check(nodetype, conststr) case nodetype: printf(conststr); break;
+
+    switch (type)
+    {
+        check(NodeType_None, "None")
+
+        check(NodeType_Assignment, "Assign")
+        check(NodeType_BinaryOperator, "BinOp")
+        check(NodeType_Number, "Number")
+        check(NodeType_Identifier, "Identifier")
+        check(NodeType_Block, "Block")
+
+        check(NodeType_GreaterThan, "GreaterThan")
+        check(NodeType_LesserThan, "LesserThan")
+        check(NodeType_GreaterThanOrEqual, "GreaterOrEqual")
+        check(NodeType_LesserThanOrEqual, "LesserOrEqual")
+
+        check(NodeType_IsEqual, "IsEqual")
+        check(NodeType_IsNotEqual, "IsNotEqual")
+
+        check(NodeType_IfStatement, "IfStatement")
+        check(NodeType_FunctionDefinition, "Function")
+        check(NodeType_FunctionCall, "FunctionCall")
+        check(NodeType_ParameterList, "Params")
+        check(NodeType_ArgumentList, "Args")
+    }
 }

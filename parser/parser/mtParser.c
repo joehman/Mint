@@ -227,6 +227,7 @@ struct ASTNode* parseParams(struct mtParserState* state)
         if (mtParserCheck(state, TokenType_Identifier))
         {
             struct ASTNode* parameter = mtASTTokenCreateNode(mtParserGetToken(state)); 
+            parameter->type = NodeType_Identifier;
             mtASTAddChildNode(parameters, parameter);
         }
     
@@ -284,6 +285,8 @@ struct ASTNode* parseFunctionDef(struct mtParserState* state)
     functionDef->type = NodeType_FunctionDefinition;
 
     struct ASTNode* identifierNode = mtASTTokenCreateNode(identifier);
+    identifierNode->type = NodeType_Identifier;
+
     mtASTAddChildNode(functionDef, identifierNode);
 
     struct ASTNode* parameterList = parseParams(state);
@@ -291,15 +294,8 @@ struct ASTNode* parseFunctionDef(struct mtParserState* state)
     mtASTAddChildNode(functionDef, parameterList);
 
     struct ASTNode* block = parseBlock(state); 
-    if (mtParserCheck(state, TokenType_EndKeyword))
-    {
-        mtParserAdvance(state);
-        mtASTAddChildNode(functionDef, block);
-        return functionDef;
-    }
-    
-    parserError(*state, "Functions must end with \'end\' keyword!");
-    return NULL;
+    mtASTAddChildNode(functionDef, block);
+    return functionDef;
 }
 
 struct ASTNode* parseArguments(struct mtParserState* state)
@@ -507,6 +503,17 @@ struct ASTNode* parseBlock(struct mtParserState* state)
     struct ASTNode* child;
     while (!mtParserCheck(state, TokenType_NullTerminator))
     {
+        if (mtParserCheck(state, TokenType_EndOfStatement))
+        {
+            mtParserAdvance(state);
+            continue;
+        }
+        if (mtParserCheck(state, TokenType_EndKeyword))
+        {
+            mtParserAdvance(state);
+            return block;
+        }
+
         if ( (child = parseFunctionDef(state)) )
         {
             mtASTAddChildNode(block, child); 
@@ -521,10 +528,6 @@ struct ASTNode* parseBlock(struct mtParserState* state)
         if ( (child = parseStatement(state)) )
         {
             mtASTAddChildNode(block, child); 
-            continue;
-        }
-        if (mtParserCheck(state, TokenType_EndOfStatement))
-        {
             continue;
         }
         return block;

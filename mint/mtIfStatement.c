@@ -9,7 +9,6 @@
 
 void interpretIfStatement(struct ASTNode* node, struct mtScope* scope)
 {
-
     bool conditional = false;
 
     int result = interpretConditional(node->children[0], scope, &conditional);

@@ -62,4 +62,14 @@ struct ASTNode* mtASTTokenCreateNode(struct Token token);
 //@brief Frees node and all of its children.
 void mtASTFree(struct ASTNode* node);
 
+//@brief Prints an ASTNode and all it's children to stdout 
+void mtPrintASTTree(struct ASTNode* node);
+
+//@brief Prints an ASTNode but not it's children to stdout. 
+// See mtPrintASTTree if you want the children as well
+void mtPrintASTNode(struct ASTNode* node);
+
+//@brief Prints the type of an ASTNode
+void mtPrintASTNodeType(struct ASTNode* node);
+
 #endif
