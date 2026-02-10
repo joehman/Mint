@@ -19,5 +19,6 @@
 #include <mtScope.h>
 #include <mtHashmap.h>
 #include <mtNumberObject.h>
+#include <mtModule.h>
 
 #endif // Mint_h
