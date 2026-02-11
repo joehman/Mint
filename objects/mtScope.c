@@ -1,6 +1,5 @@
 #include "mtScope.h"
 
-
 struct mtScope* mtCreateScope()
 {
     struct mtScope* scope = malloc(sizeof(struct mtScope));
@@ -59,6 +58,29 @@ struct mtFunction* getFunctionFromScope(struct mtScope* scope, const char* key)
         }
 
         //check the scope above
+        currentScope = scope->parent;
+    }
+
+    return NULL;
+}
+
+struct mtCFunction* getCFunctionFromScope(struct mtScope* scope, const char* key)
+{
+    if (!scope)
+    {
+        return NULL;
+    }
+
+    struct mtCFunction* out = NULL;
+
+    struct mtScope* currentScope = scope;
+    while (currentScope)
+    {
+        if ( (out = mtHashMapGet(scope->CFunctions, key)) )
+        {
+            return out;
+        }
+
         currentScope = scope->parent;
     }
 

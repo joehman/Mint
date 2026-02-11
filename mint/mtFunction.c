@@ -20,27 +20,13 @@ static void interpreterError(struct ASTNode* node, const char* fmt, ...)
     }
 }
 
-struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* scope, bool* wasFunc)
+void interpretCFunctionCall(struct mtFunction* func, struct ASTNode* argumentList)
 {
-    *wasFunc = false; 
-    if (node->type != NodeType_FunctionCall)
-    {
-        return NULL;
-    }
-    *wasFunc = true;
 
-    struct Token identifier = node->children[0]->token; 
-    struct ASTNode* argumentList = node->children[1];
+}
 
-    char tokenStr[identifier.size];
-    mtGetTokenString(identifier, (char*)&tokenStr, identifier.size);
-    struct mtFunction* func = getFunctionFromScope(scope, tokenStr);
-
-    if (!func)
-    {
-        interpreterError(node, "No such function!");
-        return NULL;
-    }
+void interpretMintFunctionCall(struct mtFunction* func, struct ASTNode* argumentList, struct ASTNode* node, char* identifierStr)
+{
 
     if (argumentList->childCount != func->parameterCount)   
     {
@@ -48,13 +34,13 @@ struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* sco
         {
             interpreterError(node, 
                              "Too many arguments to function \"%s\", expected %d arguments!", 
-                             tokenStr, func->parameterCount);
+                             identifierStr, func->parameterCount);
         }
         if (argumentList->childCount < func->parameterCount)
         {
             interpreterError(node, 
                              "Too few arguments to function \"%s\", expected %d arguments!", 
-                             tokenStr, func->parameterCount);
+                             identifierStr, func->parameterCount);
         }
         return NULL;
     }
@@ -74,6 +60,31 @@ struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* sco
     interpretBlock(func->block, arguments);
 
     return NULL;
+}
+
+struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* scope, bool* wasFunc)
+{
+    *wasFunc = false; 
+    if (node->type != NodeType_FunctionCall)
+    {
+        return NULL;
+    }
+    *wasFunc = true;
+
+    struct Token identifier = node->children[0]->token; 
+    struct ASTNode* argumentList = node->children[1];
+
+    char tokenStr[identifier.size];
+    mtGetTokenString(identifier, (char*)&tokenStr, identifier.size);
+    
+    struct mtFunction* func = getFunctionFromScope(scope, tokenStr);
+
+    if (!func)
+    {
+        interpreterError(node, "No such function!");
+        return NULL;
+    }
+
 }
 
 void interpretFunctionDef(struct ASTNode* node, struct mtScope* scope)
