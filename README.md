@@ -42,3 +42,15 @@ end
 ### Objects
 
 Currently, only the mtNumber object exists. It represents any number, decimal or integer.
+
+### Modules
+
+This language has a module system.
+
+To import a module, type
+
+```
+import modulename
+```
+
+Curently, only the io module exists, which exposes the print function that allows you to print an object.
