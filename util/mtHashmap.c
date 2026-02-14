@@ -1,5 +1,9 @@
-#include "mtHashmap.h"
+
+#include <stdio.h>
 #include <string.h>
+
+#include "mtHashmap.h"
+
 
 //djb2 algorithm by Dan Bernstein
 //http://www.cse.yorku.ca/~oz/hash.html
@@ -25,7 +29,31 @@ struct mtHashMapEntry* create_hashmap_entry(const char* key, void* value)
 }
 
 // PUBLIC FUNCTIONS
+void mtHashMapPrint(struct mtHashMap *map) {
+    if (map == NULL) {
+        printf("HashMap is NULL\n");
+        return;
+    }
 
+    printf("HashMap size: %zu\n", map->size);
+    printf("Element count: %zu\n", map->count);
+    printf("------------------------\n");
+
+    for (size_t i = 0; i < map->size; i++) {
+        struct mtHashMapEntry *entry = map->buckets[i];
+
+        if (entry == NULL)
+            continue;
+
+        printf("Bucket %zu:\n", i);
+
+        while (entry != NULL) {
+            printf("  Key: \"%s\" | Value: %p\n", entry->key, entry->value);
+            entry = entry->next;
+        }
+    }
+
+}   
 struct mtHashMap* mtHashMapCreate(size_t initialSize)
 {
     struct mtHashMap* map = malloc(sizeof(struct mtHashMap));

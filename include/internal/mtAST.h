@@ -29,7 +29,7 @@ enum NodeType {
     NodeType_FunctionCall,
     NodeType_ParameterList, // not an actual list
     NodeType_ArgumentList,
-
+    NodeType_Import
 };
 
 // abstract syntax tree
@@ -70,6 +70,9 @@ void mtPrintASTTree(struct ASTNode* node);
 void mtPrintASTNode(struct ASTNode* node);
 
 //@brief Prints the type of an ASTNode
-void mtPrintASTNodeType(struct ASTNode* node);
+//
+//@returns mtSuccess if it knew how to print a type
+//@returns mtFail if it did not know how to print a type 
+int mtPrintASTNodeType(struct ASTNode* node);
 
 #endif

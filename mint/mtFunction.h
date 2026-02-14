@@ -4,6 +4,7 @@
 
 #include <Mint.h>
 
+#include "mtObject.h"
 #include "mtScope.h"
 #include "mtAST.h"
 
@@ -20,6 +21,7 @@ struct mtFunction {
     size_t parameterCount; 
     struct Parameter* parameters;
 };
+
 
 struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* scope, bool* wasFunc);
 void interpretFunctionDef(struct ASTNode* node, struct mtScope* scope);

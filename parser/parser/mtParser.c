@@ -1,7 +1,7 @@
 
+#include "internal/mtToken.h"
 #include "internal/mtParser.h"
 #include "internal/mtAST.h"
-#include "internal/mtToken.h"
 #include <stdlib.h>
 
 // ___________ Helper functions ______________
@@ -29,7 +29,7 @@ void unexpectedTokenError(struct mtParserState state)
 }
 
 /*
-*   block       = statments | expressions | function_def | if
+*   block       = statments | expressions | function_def | if | import
 *   statement   = identifier {assign} expression 
 *   expression  = {add | sub} term {add | sub} term 
 *   term        = factor  {mul | div} factor  
@@ -488,11 +488,41 @@ struct ASTNode* parseFunctionCall(struct mtParserState* state)
     // it exists mainly for debugging
     struct ASTNode* functionCall = mtASTTokenCreateNode(identifier);
     functionCall->type = NodeType_FunctionCall;
-   
-    mtASTAddChildNode(functionCall, mtASTTokenCreateNode(identifier));
+    
+    struct ASTNode* identifierNode = mtASTTokenCreateNode(identifier);
+    identifierNode->type = NodeType_Identifier;
+
+    mtASTAddChildNode(functionCall, identifierNode);
     mtASTAddChildNode(functionCall, arguments);
 
     return functionCall;
+}
+
+struct ASTNode* parseImport(struct mtParserState* state)
+{
+    // |ImportNode
+    // |    |IdentifierNode
+    
+    size_t startToken = state->currentToken; 
+
+    if (!mtParserCheck(state, TokenType_ImportKeyword))
+    {
+        return NULL; 
+    }
+
+    mtParserAdvance(state);
+    struct Token identifierToken = mtParserGetToken(state);
+    mtParserAdvance(state);
+
+    struct ASTNode* importNode = mtASTCreateNode();
+    importNode->type = NodeType_Import;
+
+    struct ASTNode* identifierNode = mtASTTokenCreateNode(identifierToken);
+    identifierNode->type = NodeType_Identifier;
+
+    mtASTAddChildNode(importNode, identifierNode);
+
+    return importNode;
 }
 
 struct ASTNode* parseBlock(struct mtParserState* state)
@@ -512,6 +542,12 @@ struct ASTNode* parseBlock(struct mtParserState* state)
         {
             mtParserAdvance(state);
             return block;
+        }
+
+        if ( (child = parseImport(state)) )
+        {
+            mtASTAddChildNode(block, child);
+            continue;
         }
 
         if ( (child = parseFunctionDef(state)) )

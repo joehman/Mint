@@ -4,6 +4,7 @@
 
 #include "mtBlock.h"
 #include "mtExpression.h"
+#include "mtUtilities.h"
 
 static void interpreterError(struct ASTNode* node, const char* fmt, ...)
 {
@@ -20,6 +21,71 @@ static void interpreterError(struct ASTNode* node, const char* fmt, ...)
     }
 }
 
+int interpretCFunctionCall(struct mtCFunction* func, struct ASTNode* node, struct mtScope* scope)
+{
+    // TODO : Make it possible to pass more than one argument to a CFunction
+
+    struct ASTNode* argumentList = node->children[1];
+    struct mtObject* argument = NULL; 
+   
+    if (argumentList->childCount > 0)
+    {
+        argument = interpretExpression(argumentList->children[0], scope);
+    }
+
+    if (!argument)
+    {
+        return mtFail;
+    }
+
+    func->func(argument);
+
+    return mtSuccess; 
+}
+
+int interpretMintFunctionCall(struct mtFunction* func, struct ASTNode* node, struct mtScope* scope)
+{
+    struct ASTNode* identifierNode = node->children[0];
+    struct ASTNode* argumentList = node->children[1];
+
+    char* identifierStr = malloc(identifierNode->token.size);
+    mtGetTokenString(identifierNode->token, identifierStr, identifierNode->token.size);
+
+    if (argumentList->childCount != func->parameterCount)   
+    {
+        if (argumentList->childCount > func->parameterCount)
+        {
+            interpreterError(node, 
+                             "Too many arguments to function \"%s\", expected %d arguments!", 
+                             identifierStr, func->parameterCount);
+            return mtFail;
+        }
+        if (argumentList->childCount < func->parameterCount)
+        {
+            interpreterError(node, 
+                             "Too few arguments to function \"%s\", expected %d arguments!", 
+                             identifierStr, func->parameterCount);
+            return mtFail;
+        }
+    }
+
+    struct mtScope* arguments = mtCreateScope();
+    arguments->parent = scope; 
+
+    for (size_t i = 0; i < argumentList->childCount; i++)
+    {
+        struct mtObject* argument = interpretExpression(argumentList->children[i], scope);
+
+        if (!argument)
+            return mtFail;
+        mtHashMapPut(arguments->variables, func->parameters[i].identifier, argument);   
+    }
+   
+    interpretBlock(func->block, arguments);
+
+    return mtSuccess;
+}
+
 struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* scope, bool* wasFunc)
 {
     *wasFunc = false; 
@@ -34,45 +100,22 @@ struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* sco
 
     char tokenStr[identifier.size];
     mtGetTokenString(identifier, (char*)&tokenStr, identifier.size);
+    
     struct mtFunction* func = getFunctionFromScope(scope, tokenStr);
+    struct mtCFunction* cFunc = getCFunctionFromScope(scope, tokenStr);
 
-    if (!func)
+    bool foundFunc = false;
+    if (func)
     {
-        interpreterError(node, "No such function!");
-        return NULL;
-    }
-
-    if (argumentList->childCount != func->parameterCount)   
+        foundFunc = true; 
+        interpretMintFunctionCall(func, node, scope);
+    } 
+    else if (cFunc)
     {
-        if (argumentList->childCount > func->parameterCount)
-        {
-            interpreterError(node, 
-                             "Too many arguments to function \"%s\", expected %d arguments!", 
-                             tokenStr, func->parameterCount);
-        }
-        if (argumentList->childCount < func->parameterCount)
-        {
-            interpreterError(node, 
-                             "Too few arguments to function \"%s\", expected %d arguments!", 
-                             tokenStr, func->parameterCount);
-        }
-        return NULL;
+        foundFunc = true;
+        interpretCFunctionCall(cFunc, node, scope);  
     }
-
-    struct mtScope* arguments = mtCreateScope();
-    arguments->parent = scope; 
-
-    for (size_t i = 0; i < argumentList->childCount; i++)
-    {
-        struct mtObject* argument = interpretExpression(argumentList->children[i], scope);
-
-        if (!argument)
-            return NULL;
-        mtHashMapPut(arguments->variables, func->parameters[i].identifier, argument);   
-    }
-   
-    interpretBlock(func->block, arguments);
-
+    
     return NULL;
 }
 

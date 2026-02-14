@@ -7,6 +7,7 @@
 #include "mtExpression.h"
 #include "mtFunction.h"
 #include "mtIfStatement.h"
+#include "mtImport.h"
 
 void interpretBlock(struct ASTNode* node, struct mtScope* parent)
 {
@@ -25,6 +26,9 @@ void interpretBlock(struct ASTNode* node, struct mtScope* parent)
       
         switch(currentNode->type)
         {
+            case NodeType_Import:
+                interpretImport(currentNode, scope);
+                break;
             case NodeType_IfStatement:
                 interpretIfStatement(currentNode, scope);
                 break;
@@ -40,7 +44,7 @@ void interpretBlock(struct ASTNode* node, struct mtScope* parent)
                 expression = interpretExpression(currentNode, scope); 
                 if (expression)
                 {
-                    printf("%s\n", expression->type.str(expression->data));
+                    //printf("%s\n", expression->type.str(expression->data));
                 }
                 break;
             
