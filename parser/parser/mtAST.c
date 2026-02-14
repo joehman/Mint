@@ -107,14 +107,20 @@ void mtPrintASTNode(struct ASTNode* node)
     strncpy((char*)&buf, node->token.string, node->token.size);
 
     printf("tok: %s type: ", buf);
-    mtPrintASTNodeType(node);
+    if (mtPrintASTNodeType(node) != mtSuccess)
+    {
+        printf("UndefinedType");
+    }
 }
 
-void mtPrintASTNodeType(struct ASTNode* node)
+int mtPrintASTNodeType(struct ASTNode* node)
 {
     int type = node->type;
     
-    #define check(nodetype, conststr) case nodetype: printf(conststr); break;
+    #define check(nodetype, conststr)   \
+        case nodetype:          \
+            printf(conststr);   \
+            return mtSuccess;   \
 
     switch (type)
     {
@@ -139,5 +145,8 @@ void mtPrintASTNodeType(struct ASTNode* node)
         check(NodeType_FunctionCall, "FunctionCall")
         check(NodeType_ParameterList, "Params")
         check(NodeType_ArgumentList, "Args")
+        check(NodeType_Import, "Import")
     }
+
+    return mtFail;
 }

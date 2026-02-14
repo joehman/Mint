@@ -132,7 +132,11 @@ void mtTokenizerSetTokenType(struct Token* token, struct TokenTypeRules rules)
         token->type = TokenType_IfKeyword;
         return;
     }
-
+    if (mtTokenCmp(*token, mtCreateStringToken(rules.importKeyword)) == 0)
+    {
+        token->type = TokenType_ImportKeyword;
+        return;
+    }
 
     bool isIntegerLiteral = mtOnlyOfN(token->string, token->size, (char*)&rules.numbers[0], 10);
     if (isIntegerLiteral)

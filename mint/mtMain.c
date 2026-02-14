@@ -14,7 +14,6 @@
 
 bool gPrintASTTree = false;
 
-
 const struct TokenTypeRules rules = {
     .additionChar           = '+',
     .divisionChar           = '/',
@@ -38,7 +37,8 @@ const struct TokenTypeRules rules = {
     .numbers = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'},
     .functionKeyword = "func",
     .endKeyword = "end",
-    .ifKeyword = "if"
+    .ifKeyword = "if",
+    .importKeyword = "import"
 };
 
 void mtExecute(char* string)

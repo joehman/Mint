@@ -179,9 +179,9 @@ bool mtNumberIsLesser (void* a, void* b)
 		double a = (numA->type == DECIMAL) ? numA->decimal : numA->integer; 
 		double b = (numB->type == DECIMAL) ? numB->decimal : numB->integer;
 
-        return a > b;
+        return a < b;
 	} else {
-        return numA->integer > numB->integer; 	
+        return numA->integer < numB->integer; 	
     }
 }
 

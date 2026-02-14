@@ -1,6 +1,9 @@
 
+#include "mtModule.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+#include <mtUtilities.h>
 
 #define mtUnix __unix__
 
@@ -8,7 +11,7 @@
 #include <dlfcn.h>
 #endif
 
-#include <mtInternalModule.h>
+#include <internal/mtInternalModule.h>
 
 void moduleError(char* fmt, ...)
 {
@@ -22,16 +25,27 @@ void moduleError(char* fmt, ...)
 
 struct mtModuleDef* mtLoadModule(const char* name)
 {
-#ifdef mtUnix 
-    void* ptr = dlopen(name, RTLD_LAZY);
+#ifdef mtUnix
+    char namepath[128];
+    memset(&namepath, 0, mtArraySize(namepath));
+    
+    sprintf((char*)&namepath, "./lib%s.so", name);
+
+    void* ptr = dlopen(namepath, RTLD_LAZY);
 
     if (!ptr)
     {
-        char* error = dlerror(); 
+        const char* error = dlerror(); 
         moduleError("%s", error); 
+
+        return NULL;
     }
 
-    return ptr; 
+    mtModuleInitFunction init = dlsym(ptr, mtModuleInitFunctionSymbolString); 
+
+    struct mtModuleDef* def = init();
+
+    return def; 
 #endif
     moduleError("mtLoadModule not implemented on this platform!");
     return NULL;
@@ -40,10 +54,11 @@ struct mtModuleDef* mtLoadModule(const char* name)
 void mtLoadModuleIntoScope(struct mtScope* scope, struct mtModuleDef* module)
 {
     struct mtCFunction* CFunction = &module->functions[0];
-
-    while (CFunction->func)
+    
+    for (int i = 1; CFunction->func; i++)
     {
-        mtHashMapPut(scope->CFunctions, CFunction->identifier, CFunction->func);
+        mtHashMapPut(scope->CFunctions, CFunction->identifier, CFunction);
+        CFunction = &module->functions[i];
     }
 }
 

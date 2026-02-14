@@ -44,6 +44,7 @@ struct TokenTypeRules
     const char* functionKeyword;
     const char* endKeyword;
     const char* ifKeyword;
+    const char* importKeyword;
 };
 
 struct TokenizerState 

@@ -50,7 +50,7 @@ int interpretConditional(struct ASTNode* node, struct mtScope* scope, bool* resu
             break; 
 
         case NodeType_GreaterThanOrEqual:
-            *result = left->type.isGreater(left->data, right->data) || left->type.isEqual(left->data, right->data);  // this should probably be its own function
+            *result = left->type.isGreater(left->data, right->data) || left->type.isEqual(left->data, right->data);  // this should probably be its own functionA
             break; 
         
         case NodeType_LesserThanOrEqual:
@@ -58,7 +58,7 @@ int interpretConditional(struct ASTNode* node, struct mtScope* scope, bool* resu
             break; 
         
         case NodeType_IsEqual:
-            *result = left->type.isEqual(left->data, right->data);  
+            *result = left->type.isEqual(left->data, right->data);
             break; 
 
         case NodeType_IsNotEqual:

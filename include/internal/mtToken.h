@@ -32,7 +32,8 @@ enum TokenType {
 
     TokenType_FunctionKeyword,
     TokenType_EndKeyword,
-    TokenType_IfKeyword
+    TokenType_IfKeyword,
+    TokenType_ImportKeyword
 };
 
 struct Token {
@@ -111,7 +112,7 @@ int mtTokenCmp(struct Token t1, struct Token t2);
 //@brief Writes the token's string to str including a null terminator, up to stringSize
 //
 //@param token the token
-//@param str a string with the capacity of token.size+1
+//@param str a string with the capacity stringSize 
 void mtGetTokenString(struct Token token, char* str, size_t stringSize);
 
 #endif

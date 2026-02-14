@@ -3,6 +3,8 @@
 #include <mtModule.h>
 #include <stdio.h>
 
+int a;
+
 struct mtObject* print(struct mtObject* arg)
 {
     if (!arg->type.str)
@@ -24,7 +26,7 @@ struct mtModuleDef moduleDef = {
     functions
 };
 
-struct mtModuleDef* mtInitFunctionSymbolName(void) 
+struct mtModuleDef* mtModuleInitFunctionSymbol(void) 
 {
     return &moduleDef;    
 }
