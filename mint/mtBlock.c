@@ -18,6 +18,7 @@ void interpretBlock(struct ASTNode* node, struct mtScope* parent)
 
     struct mtScope* scope = mtCreateScope(); 
     scope->parent = parent;
+
     for (size_t i = 0; i < node->childCount; i++) 
     {
         struct mtObject* expression = NULL;
@@ -41,15 +42,13 @@ void interpretBlock(struct ASTNode* node, struct mtScope* parent)
             
             case NodeType_BinaryOperator:
             case NodeType_FunctionCall:
-                expression = interpretExpression(currentNode, scope); 
-                if (expression)
-                {
-                    //printf("%s\n", expression->type.str(expression->data));
-                }
+                interpretExpression(currentNode, scope); 
                 break;
             
             default:
                 break;
         }
     }
+
+    mtDeleteScope(scope);
 }

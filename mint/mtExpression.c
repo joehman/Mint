@@ -2,7 +2,6 @@
 #include "mtExpression.h"
 #include "mtToken.h"
 
-
 #include "mtFunction.h"
 #include "mtInterpreterError.h"
 #include "mtScope.h"
@@ -29,14 +28,19 @@ void interpretStatement(struct ASTNode* node, struct mtScope* scope)
 
     if (!left)
     {
-        char nodeStr[node->token.size];
-        mtGetTokenString(leftNode->token, (char*)&nodeStr, mtArraySize(nodeStr));
+        char* nodeStr = malloc(leftNode->token.size);
+        mtGetTokenString(leftNode->token, nodeStr, leftNode->token.size);
 
         left = mtCreateObject(right->type);
-        mtHashMapPut(scope->variables, nodeStr, left);
+        mtAddObjectToScope(scope, nodeStr, left);
+
+        // mtAddObjectToScope will copy the string
+        free(nodeStr);
     }
 
     left->type.set(left->data, right->data);
+
+    mtDeleteObject(right);
 }
 
 struct mtObject* intepretInteger(struct ASTNode* node)
@@ -83,7 +87,7 @@ struct mtObject* interpretIdentifier(struct ASTNode* node, struct mtScope* scope
         char str[node->token.size];
         mtGetTokenString(node->token, (char*)&str, node->token.size); 
        
-        out = getObjectFromScope(scope, str); 
+        out = mtGetObjectFromScope(scope, str); 
 
         return out;
     }

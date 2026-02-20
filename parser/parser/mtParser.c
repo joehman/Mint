@@ -304,9 +304,10 @@ struct ASTNode* parseArguments(struct mtParserState* state)
     {
         return NULL;
     }
+    struct Token lparenToken = mtParserGetToken(state);
     mtParserAdvance(state);
     
-    struct ASTNode* arguments = mtASTCreateNode();
+    struct ASTNode* arguments = mtASTTokenCreateNode(lparenToken);
     arguments->type = NodeType_ArgumentList;
 
     while (!mtParserCheck(state, TokenType_RightParentheses))
@@ -510,11 +511,13 @@ struct ASTNode* parseImport(struct mtParserState* state)
         return NULL; 
     }
 
+    struct Token importToken = mtParserGetToken(state);
+    
     mtParserAdvance(state);
     struct Token identifierToken = mtParserGetToken(state);
     mtParserAdvance(state);
 
-    struct ASTNode* importNode = mtASTCreateNode();
+    struct ASTNode* importNode = mtASTTokenCreateNode(importToken);
     importNode->type = NodeType_Import;
 
     struct ASTNode* identifierNode = mtASTTokenCreateNode(identifierToken);

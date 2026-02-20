@@ -11,8 +11,14 @@ struct mtObject* print(struct mtObject* arg)
     {
         return NULL; 
     }
+    
+    char* str = arg->type.str(arg->data);
+    if (!str)
+        return NULL;
 
-    printf("%s\n", arg->type.str(arg->data));
+    printf("%s\n", str);
+
+    free(str);
     return NULL;
 }
 

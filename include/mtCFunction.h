@@ -4,6 +4,8 @@
 
 struct mtCFunction {
     const char* identifier;
+
+    // function pointer that returns mtObject
     struct mtObject* (*func)(struct mtObject*);
 };
 
