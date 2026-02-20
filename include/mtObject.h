@@ -28,7 +28,7 @@ struct mtObject {
     void* data;
 };
 
+void mtDeleteObject(struct mtObject* object);
 struct mtObject* mtCreateObject(struct Type type);
-
 
 #endif

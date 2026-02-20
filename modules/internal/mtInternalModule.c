@@ -57,7 +57,7 @@ void mtLoadModuleIntoScope(struct mtScope* scope, struct mtModuleDef* module)
     
     for (int i = 1; CFunction->func; i++)
     {
-        mtHashMapPut(scope->CFunctions, CFunction->identifier, CFunction);
+        mtAddCFunctionToScope(scope, CFunction->identifier, CFunction);
         CFunction = &module->functions[i];
     }
 }

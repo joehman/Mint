@@ -35,6 +35,7 @@ int interpretCFunctionCall(struct mtCFunction* func, struct ASTNode* node, struc
 
     if (!argument)
     {
+        interpreterError(argumentList->children[0], "Failed to interpret node as expression");
         return mtFail;
     }
 
@@ -78,7 +79,7 @@ int interpretMintFunctionCall(struct mtFunction* func, struct ASTNode* node, str
 
         if (!argument)
             return mtFail;
-        mtHashMapPut(arguments->variables, func->parameters[i].identifier, argument);   
+        mtAddObjectToScope(arguments, func->parameters[i].identifier, argument); 
     }
    
     interpretBlock(func->block, arguments);
@@ -89,7 +90,7 @@ int interpretMintFunctionCall(struct mtFunction* func, struct ASTNode* node, str
 struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* scope, bool* wasFunc)
 {
     *wasFunc = false; 
-    if (node->type != NodeType_FunctionCall)
+    if (node->type != (NodeType_FunctionCall))
     {
         return NULL;
     }
@@ -101,8 +102,8 @@ struct mtObject* interpretFunctionCall(struct ASTNode* node, struct mtScope* sco
     char tokenStr[identifier.size];
     mtGetTokenString(identifier, (char*)&tokenStr, identifier.size);
     
-    struct mtFunction* func = getFunctionFromScope(scope, tokenStr);
-    struct mtCFunction* cFunc = getCFunctionFromScope(scope, tokenStr);
+    struct mtFunction* func = mtGetFunctionFromScope(scope, tokenStr);
+    struct mtCFunction* cFunc = mtGetCFunctionFromScope(scope, tokenStr);
 
     bool foundFunc = false;
     if (func)
@@ -161,7 +162,7 @@ void interpretFunctionDef(struct ASTNode* node, struct mtScope* scope)
         out->parameters[i].type = NULL;
     }
     struct ASTNode* block = node->children[2];
-    out->block = block; 
+    out->block = block;
 
-    mtHashMapPut(scope->functions, out->identifier, out);
+    mtAddFunctionToScope(scope, out->identifier, out);
 }

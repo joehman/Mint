@@ -106,7 +106,7 @@ void mtPrintASTNode(struct ASTNode* node)
 
     strncpy((char*)&buf, node->token.string, node->token.size);
 
-    printf("tok: %s type: ", buf);
+    printf("tok: \"%s\", type: ", buf);
     if (mtPrintASTNodeType(node) != mtSuccess)
     {
         printf("UndefinedType");

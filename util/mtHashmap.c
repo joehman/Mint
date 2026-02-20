@@ -65,7 +65,7 @@ struct mtHashMap* mtHashMapCreate(size_t initialSize)
     return map;
 }
 
-void mtHashMapDestroy(struct mtHashMap* map, void (*free_value)(void*))
+void mtHashMapDestroy(struct mtHashMap* map, void (free_value)(void*))
 {
     for (size_t i = 0; i < map->size; i++) {
         struct mtHashMapEntry *entry = map->buckets[i];

@@ -1,4 +1,6 @@
 #include "mtScope.h"
+#include "mtObject.h"
+#include <mtUtilities.h>
 
 struct mtScope* mtCreateScope()
 {
@@ -12,7 +14,7 @@ struct mtScope* mtCreateScope()
     return scope;
 }
 
-struct mtObject* getObjectFromScope(struct mtScope* scope, const char* key)
+struct mtObject* mtGetObjectFromScope(struct mtScope* scope, const char* key)
 {
     if (!scope)
     {
@@ -41,7 +43,7 @@ struct mtObject* getObjectFromScope(struct mtScope* scope, const char* key)
     return NULL;
 }
 
-struct mtFunction* getFunctionFromScope(struct mtScope* scope, const char* key)
+struct mtFunction* mtGetFunctionFromScope(struct mtScope* scope, const char* key)
 {
     if (scope == NULL)
     {
@@ -65,7 +67,7 @@ struct mtFunction* getFunctionFromScope(struct mtScope* scope, const char* key)
     return NULL;
 }
 
-struct mtCFunction* getCFunctionFromScope(struct mtScope* scope, const char* key)
+struct mtCFunction* mtGetCFunctionFromScope(struct mtScope* scope, const char* key)
 {
     if (!scope)
     {
@@ -86,4 +88,32 @@ struct mtCFunction* getCFunctionFromScope(struct mtScope* scope, const char* key
     }
 
     return NULL;
+}
+
+int mtAddCFunctionToScope(struct mtScope* scope, const char* key, struct mtCFunction* cFunc)
+{
+    mtHashMapPut(scope->CFunctions, key, cFunc); 
+    return mtSuccess; 
+}
+
+int mtAddFunctionToScope(struct mtScope* scope, const char* key, struct mtFunction* func)
+{
+    mtHashMapPut(scope->functions, key, func); 
+    return mtSuccess; 
+}
+
+int mtAddObjectToScope(struct mtScope* scope, const char* key, struct mtObject* object)
+{
+    mtHashMapPut(scope->variables, key, object); 
+    return mtSuccess; 
+}
+
+void mtDeleteScope(struct mtScope* scope)
+{
+    mtHashMapDestroy(scope->variables, (void*)mtDeleteObject);
+    mtHashMapDestroy(scope->functions, NULL);
+    mtHashMapDestroy(scope->CFunctions, NULL);
+
+    scope->parent = NULL;
+    free(scope);
 }
